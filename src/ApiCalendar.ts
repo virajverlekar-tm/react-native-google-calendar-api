@@ -27,6 +27,7 @@ class ApiCalendar {
       this.updateEvent = this.updateEvent.bind(this);
       this.deleteEvent = this.deleteEvent.bind(this);
       this.getEvent = this.getEvent.bind(this);
+      this.authorizeIfSignedIn = this.authorizeIfSignedIn.bind(this);
       this.handleClientLoad();
     } catch (e) {
       console.log(e);
@@ -86,28 +87,63 @@ class ApiCalendar {
   }
 
   /**
+   * Authorize gapi if the user is already signed in
+   */
+  authorizeIfSignedIn() {
+    return new Promise((resolve, reject) => {
+      if (gapi) {
+        gapi.auth.authorize(
+          {
+            client_id: this.config.clientId,
+            scope: this.config.scope,
+            immediate: true,
+          },
+          (authResult) => {
+            if (authResult && !authResult.error) {
+              this.accessToken = authResult.access_token;
+              gapi.client.setToken({ access_token: this.accessToken });
+              resolve(authResult);
+            } else {
+              console.log(
+                "User is not signed in or error occurred:",
+                authResult.error
+              );
+              reject(new Error(authResult.error || "Authorization failed"));
+            }
+          }
+        );
+      } else {
+        console.error("Error: gapi not loaded");
+        reject(new Error("gapi not loaded"));
+      }
+    });
+  }
+
+  /**
    * Sign in Google user account
    * @returns {Promise<void>} Promise resolved if authentication is successful, rejected if unsuccessful.
    */
   public async handleAuthClick(): Promise<void> {
     if (gapi && this.tokenClient) {
-      return new Promise<void>((resolve: (resp: any) => void, reject: (resp: any) => void): void => {
-        this.tokenClient!.callback = (resp: any): void => {
-          if (resp.error) {
+      return new Promise<void>(
+        (resolve: (resp: any) => void, reject: (resp: any) => void): void => {
+          this.tokenClient!.callback = (resp: any): void => {
+            if (resp.error) {
+              reject(resp);
+            } else {
+              resolve(resp);
+            }
+          };
+          this.tokenClient!.error_callback = (resp: any): void => {
             reject(resp);
+          };
+          if (gapi.client.getToken() === null) {
+            this.tokenClient!.requestAccessToken({ prompt: "consent" });
           } else {
-            resolve(resp);
+            this.tokenClient!.requestAccessToken({ prompt: "" });
           }
-        };
-        this.tokenClient!.error_callback = (resp: any): void => {
-          reject(resp);
-        };
-        if (gapi.client.getToken() === null) {
-          this.tokenClient!.requestAccessToken({ prompt: "consent" });
-        } else {
-          this.tokenClient!.requestAccessToken({ prompt: "" });
         }
-      });
+      );
     } else {
       console.error("Error: this.gapi not loaded");
       return Promise.reject(new Error("Error: this.gapi not loaded"));
