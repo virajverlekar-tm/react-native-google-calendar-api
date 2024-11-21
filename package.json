@@ -1,9 +1,8 @@
 {
-  "name": "react-google-calendar-api",
-  "version": "2.3.0",
-  "description": "An API to manage your Google Calendar",
-  "main": "./dist/ApiCalendar.js",
-  "types": "./dist/ApiCalendar.d.ts",
+  "name": "react-native-google-calendar-api",
+  "version": "0.0.1",
+  "description": "React Native Module for Google Calendar API interaction",
+  "main": "ApiCalendar.js",
   "scripts": {
     "build": "eslint . --ext .ts,.tsx && tsup src/ApiCalendar.ts --dts",
     "dev": "tsup src/ApiCalendar.ts --dts --watch",
@@ -23,23 +22,13 @@
       "node"
     ]
   },
-  "repository": {
-    "type": "git",
-    "url": "git+ssh://git@github.com/Kubessandra/react-google-calendar-api.git"
+  "bundleDependencies": false,
+  "dependencies": {
+    "@types/node": "^9.6.18"
   },
-  "keywords": [
-    "react",
-    "google",
-    "calendar",
-    "api"
-  ],
-  "author": "Aymeric Beudaert",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/Kubessandra/react-google-calendar-api/issues"
-  },
-  "homepage": "https://github.com/Kubessandra/react-google-calendar-api#readme",
   "devDependencies": {
+    "react": "18.3.1",
+    "react-native": "0.75.3",
     "@types/gapi": "^0.0.44",
     "@types/gapi.calendar": "^3.0.6",
     "@types/google.accounts": "^0.0.6",
@@ -55,6 +44,13 @@
     "typescript": "^4.7.2",
     "tsup": "^6.0.1"
   },
+  "keywords": [
+    "react",
+    "native",
+    "google",
+    "calendar",
+    "api"
+  ],
   "files": [
     "dist"
   ]
